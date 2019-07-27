@@ -4,14 +4,14 @@ except ImportError:
     from distutils.core import setup
 
 config = {
- 'description': 'First go on making a web web scarper',
+ 'description': 'multiprocessing web scraper  for  e commerce website scraping ',
  'author': 'Maytham Alherz',
- 'url': 'URL to get it at.',
- 'download_url': 'Where to download it.',
- 'author_email': 'My email.',
+ 'url': '',
+ 'download_url': '',
+ 'author_email': 'gmaytham@gmail.com',
  'version': '0.1',
- 'install_requires': ['nose'],
- 'packages': ['scrp'],
+ 'install_requires': [''],
+ 'packages': [''],
  'scripts': [],
  'name': 'scraper'
 }
