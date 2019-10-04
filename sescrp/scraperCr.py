@@ -11,16 +11,34 @@ from selenium.common.exceptions import StaleElementReferenceException
 import time
 import random
 import math
+from os.path import dirname, realpath, join
+import os
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++initials
+d = os.getcwd()
+dirname = os.path.dirname
+#++++++++++++++++++++
+#d_path =
+main_path = dirname(d)
+#++++++++++++++++++++
+#website =
+
+websiteend = '/s/?as=1&section=2&page=1'
+websitebeginning = 'https://saudi.souq.com/sa-en/'
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
 
 #get the next search from the search list file
-def readsearch():
-    with open(r'/home/mytham9/workspace/working/thescraper/oplist/catgorylist.txt', 'r') as f:
+def readsearch( main_path = main_path):
+    with open(join(main_path, 'oplist','catgorylist.txt'), 'r') as f:
         line = f.readline()
     return line.rstrip('\n')
 
 
-#get urls adress to be scarped
-def introscrap():
+#function for get urls adress to be scarped
+def introscrap( main_path = main_path):
 
     #====================4
 
@@ -34,103 +52,71 @@ def introscrap():
 
 
 
-        ###########
-
-    #++++++++++++++++++++
-    #d_path =
-    #++++++++++++++++++++
-    #website =
-    #++++++++++++++++++++
 
 
 
 
-        # open a chrome webdriver as driver
-        #driver = webdriver.Chrome(r'C:\Users\maytahm\coding\chr\chromedriver')*981
-    driver = webdriver.Chrome(options = options, executable_path = r'/home/mytham9/workspace/webdriver/chromedriver')
-#    driver = webdriver.Chrome(options = options, executable_path = r'/home/mytham9/workspace/webdriver/chromedriver')
 
-        ##########
-        # enter search element ##### first input
+    # open a chrome webdriver as driver
+    driver = webdriver.Chrome(options = options, executable_path = join(main_path , 'webdriver','chromedriver'))
+    #####
+
+    # get search element ##### first input
     search1 = readsearch()
     ########
 
 
-        #get the website {improve}
-    driver.get('https://saudi.souq.com/sa-en/' + search1 + '/s/?as=1&section=2&page=1')
-        #######
+    #get the website {improve}
+    driver.get(websitebeginning + search1 + websiteend )
+    #######
 
 
 
 
 
-
+    # gets count of blocks in a page
     blocks = driver.find_elements_by_class_name('overlay')
-        # gets count of blocks in a page
     pitems = int(len(blocks))
-        #print(type(blocks))
-        #####
     print(pitems)
+    ############
 
-        # initialize sellers, iteminfo, prics, links and ratings list. p.s rating is donted by having a rating or not having a rating
+    # initialize sellers, iteminfo, prics, links and ratings list. p.s rating is donted by having a rating or not having a rating
     sellers = []
     itemsinfo = []
     prices = []
     links = []
     ratings = []
-        #################
+    #################
 
-        # gets the total number of items in the whole search
+    # gets the total number of items in the whole search
     j = driver.find_element_by_class_name('total').text
-        #print(j)
     j1 = j.replace(r",", "")
-        #print(j1)
     Titems = int(re.findall('\d+', j1)[0])
-        ##########
     print(Titems)
+    ##########
 
-    #print(f"===================")
+
     driver.quit()
 
 
-        # get count/number of page ,rondimg up.
+    # get count/number of page ,rondimg up.
     pages = math.ceil(Titems/pitems)
-        #print(pages)
-        #####
-    #initpage_oddnum = math.ceil(pages/2)
-        #finalpage_oddnum  = pages
-        #initpage_evennum  = 1
-        #finalpage_evennum = int(pages/2)
-        #########
-        # make the even and odd number list
-    #oddnums = []
-    #evennums = []
-
-    #for num in range(1, pages):
-    #    if num % 2 != 0:
-    #        oddnums.append(str(num))
-    #    else:
-    #        evennums.append(str(num))
+    #####
 
 
-
-    urls = ["https://saudi.souq.com/sa-en/" + search1 + "/s/?as=1&section=2&page={}".format(i) for i in range(1, pages)]# >>>pages
+    # final list of url to be returned
     print('end of intero scrap')
     return urls, search1
 
 
 
 
+    urls = [websitebeginning + search1 + websiteend[:-1] + str(i) for i in range(1, pages)]# >>>pages
 
 # function that loops over blocks to get seller name, item name/details, item-profile-link and price.
-def scraper(url):
+def scraper(url, main_path = main_path):
 
     print('scraper start')
-    #print('\n\n')
-    #print(url)
-    #print('\n\n')
-    #print('start scraper')
-    #print(f'\nscraper is working\n')
     Psellers = []
     Pitemsinfo = []
     Pprices = []
@@ -138,18 +124,20 @@ def scraper(url):
     Prating = []
     Ppage = []
 
+    # run driver headless if mode = 1
     mode = 1
     options = Options()
-
-
     if mode > 0:
         options.add_argument('--headless')
-    driver = webdriver.Chrome(options = options, executable_path = r'/home/mytham9/workspace/webdriver/chromedriver')
+    driver = webdriver.Chrome(options = options, executable_path = join(main_path , 'webdriver','chromedriver'))
+    #####################
 
+    # {what is this}
     if len(url) <= 1:
         return
+    #____________########
+
     driver.get(url)
-    #print(f'\nthe problom is not here\n')
     blocks = driver.find_elements_by_class_name('overlay')
 
 
@@ -289,7 +277,7 @@ def scraper(url):
     # save page_html with url name
     regex = re.compile('[^a-zA-Z0-9]')
     urlnochar = regex.sub('', url)
-    with io.open('/home/mytham9/workspace/working/thescraper/html/' + urlnochar +'.html', 'w' ,encoding='utf8') as f:
+    with io.open(join(main_path , 'html' , urlnochar +'.html'), 'w' ,encoding='utf8') as f:
         f.write(page_html)
     ##############
 
