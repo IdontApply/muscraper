@@ -29,9 +29,6 @@ def deletsearched():
     return line.rstrip('\n')
 
 
-
-
-
 def singlecsv(values, date1, search1):
     filename2 ='/home/mytham9/workspace/working/thescraper/sellersclist/' + search1  + '_' + str(date1) +'.csv'
     with open(filename2,'w', encoding='utf-8') as f:
@@ -40,17 +37,7 @@ def singlecsv(values, date1, search1):
             writer.writerow([val])
 
 
-
-
-
-
-
 #if __name__ == '__main__':
-
-
-
-
-
 
 
 def log(url):
@@ -149,24 +136,10 @@ def cr():
         f.write(filename1+'\n')
 
 
-
-
-
-
-
-
-
-
 def con1():
     with open(r'/home/mytham9/workspace/working/thescraper/oplist/control.txt', 'r', encoding='utf-8') as fo:
         l = fo.readline()
     return l
 
 
-
-
-
-
 # close driver
-
-##########

@@ -1,43 +1,75 @@
-from bs4 import BeautifulSoup #opining modul bs4 is html parser
-import io #for opning and saving fails
+from bs4  import BeautifulSoup  # opining modul bs4 is html parser
+import io  # for opning and saving fails
 import re
-from selenium import webdriver #web automation driver
+from selenium import webdriver  # web automation driver
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.chrome.options import Options #for making the page not appering on the screen
+from selenium.webdriver.chrome.options import Options  # for making the page not appering on the screen
 import time
-import csv
+import mualchemy.aualchemy as au
 
-def htmlgetter():
+from os.path import dirname, join  # realpath,
+from os import getcwd
+from sys import exit
+import datetime
+
+
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++initials
+
+d = getcwd()
+# dirname = os.path.dirname
+# ++++++++++++++++++++
+# d_path =
+main_path = dirname(d)
+# ++++++++++++++++++++
+
+print(getcwd())
+pdates, search, product, sales, seller , session = au.tables(join(main_path , 'dbconfig.yaml'))
+sellertable = session.query(seller).filter_by(rated = None).first()# clean
+s = sellertable# cleab
+sellername = s.name
+seller_id = s.id
+
+
+def insert_into_seller(session, s, seller_date, item_count):
+    s.rated = True
+    s.eneterydate = seller_date
+    s.totalsales = int(item_count)
+    session.commit()
+
+
+def insert_items(session, seller_id, items_list, sales_table):
+
+    for items in items_list:
+        items_row = sales_table(seller_id=seller_id, date_of_sale=items[0], price=items[1], product_info=items[2])
+        session.add(items_row)
+    pass
+
+
+def htmlgetter(sellername, main_path=main_path):
 
     # make option oprator that opens the web driver as a headless driver
     options = Options()
-    options.add_argument('--headless')
-    #####
-
-    #open the sellers file
-
-    with open(r'C:\Users\hmayt\coding\venv\projects\skeleton_scrap\oplist\sellerlist.txt', 'r') as f:
-        seller = f.readline().rstrip('\n')
-
-    print(seller)
-    # open webdriver and website. use oprator option oprator. ask the user for input
-    #main> options=options, executable_path=
-    driver = webdriver.Chrome(r'C:\Users\hmayt\coding\webdriver\chromedriver')
-    #main> driver.get(input("enter link here/> "))
-    driver.get(f'https://saudi.souq.com/sa-en/{seller}/p/profile.html')
+    #options.add_argument('--headless')
 
 
+    # open webdriver and website. use oprator option oprator.
+    #main>
+    driver = webdriver.Chrome(options = options, executable_path = join(main_path , 'webdriver','chromedriver'))
+    url = f'https://saudi.souq.com/sa-en/{sellername}/p/profile.html'
+    driver.get(url)
     soucenum = BeautifulSoup(driver.page_source, 'html.parser')
+    #########
 
 
     # Gets the sellers date of entering the market
     dm = driver.find_element_by_xpath('//*[@id="content-body"]/div/div[3]/div/div[1]/div[1]/div/div/div[3]').text
     p = re.compile('\d{2}\s[A-Z][a-z]+\s\d{4}')
     memberS = p.findall(dm)[0]
-    print(memberS)
+    member_sense = datetime.datetime.strptime(memberS, '%d %B %Y')
+    print(f'\n\n\n{memberS}\n\n\n')
     ###################
 
 
@@ -56,17 +88,12 @@ def htmlgetter():
     #####
 
 
-    # test point
-    print('\n\n\n\nno prob\n\n\n')
-    ###
-
-
     #loop-click the show-more button to show the whole page
     Action = ActionChains(driver)
     for x in range(0, clicks):
 
         time.sleep(1.5)
-        WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.ID, 'showMoreResult')))
+        WebDriverWait(driver, 30).until(ec.element_to_be_clickable((By.ID, 'showMoreResult')))
         show_more = driver.find_element_by_id('showMoreResult')
         Action.move_to_element(show_more).click().perform()
         print(f"\n\n\nclick number {x}\n\n\n")
@@ -78,45 +105,24 @@ def htmlgetter():
     #######
 
 
-    # close the webdriver
-    driver.quit()
-    #######
-
-
-    #to sort and clean
-    #f = driver.find_element_by_tag_name('span')
-    #dataP_num = f.page_source
-    #print(f"\n\n\n after this the data should work \n\n\n    \>")
-    #print(dataP_num)
-    #ex>except TimeoutException:
-    ######
-
-
     #convert html of the whole page into a string
     soup = str(BeautifulSoup(souce, 'html.parser'))
     ####
 
 
-    # sort and clean
-    #print(soup)
-    #print(type(soup))
-    #c = soup.prettify()
-    #print(type(soup.get_text()))
-    #print(soup.prettify().encode("utf-8"))
-    #print(soup.find_all('label'))
-    ######
-
-
     #save html into a file
-    with io.open('C:\\Users\\hmayt\\coding\\venv\projects\\skeleton_scrap\\html\\' + seller + '.html', 'w' ,encoding='utf8') as f:
+    with io.open(join(main_path ,'html' , sellername + '.html'), 'w' , encoding='utf8') as f:
         f.write(soup)
     ######
 
-    return soup , seller
+
+    return soup , member_sense, numb
+
 
 def Pcsv(souce, seller):
 
-# find date-of-purches, price and item-info in the html
+
+    # find date-of-purches, price and item-info in the html
     soup = BeautifulSoup(souce, 'html.parser')
     soup_date = soup.find_all("small", class_="gray-color")
     soup_info = soup.find_all("a", class_="display-inline")
@@ -124,44 +130,53 @@ def Pcsv(souce, seller):
     res_date = []
     res_info = []
     res_price = []
-    ##########
+
+
 
     # cleaning tools for finding the price
     f = re.compile("[A-Z][a-z ]{2}\s[a-z ]{2}\s[a-z ]{3}\s[a-z ]{3}\s\d+[.]")
     p = re.compile("\d+")
-    #####
+
+
 
     #clean item price and put it in a list
     for price_h in soup_price1:
         info = f.findall(str(price_h))
         if len(info) == 1:
             res_price.append(int(str(p.findall(info[0])[0])))
-    ##############
+
+
 
     # clean item info and put it in a list
     for info_h in soup_info:
         info = info_h.get_text().strip()
         res_info.append(str(info))
-    ########
+
 
 
     # clean item purches date and put it in a list
     for dater_h in soup_date:
         dater_h = dater_h.get_text().strip()
         p = re.compile('\d{2}\s[A-Z][a-z]+\s\d{4}')
-        dater = p.findall(dater_h)
-        res_date.append(str(dater).strip("[]''"))
-    ######
+        dater1 = str(p.findall(dater_h)).strip("[]''")
+        dater = datetime.datetime.strptime(dater1, '%d %B %Y')
+        res_date.append(dater)
+
+    return zip(res_date, res_price, res_info)
 
 
-    # writing csv file while zip combines the to dat lists
-    with open(f'C:\\Users\\hmayt\\coding\\venv\\projects\\skeleton_scrap\\csv\\{seller}.csv','w', encoding='utf-8')  as c:
+try:
+    souce, seller_date, item_count = htmlgetter(sellername)
+    print(seller_date)
+except ec.NoSuchElementException:
+    print('zero sales')
+    s.rated = False
+    session.commit()
+    exit()
 
-        C_writer = csv.writer(c, delimiter=' ')
-        C_writer.writerows(zip(res_date, res_price, res_info))
-    ##########
 
 
-souce, seller = htmlgetter()
-
-Pcsv(souce, seller)
+items_list = Pcsv(souce, sellername)
+insert_into_seller(session, s, seller_date, item_count)
+insert_items(session, seller_id, items_list, sales)
+session.commit()

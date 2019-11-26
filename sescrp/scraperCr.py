@@ -1,3 +1,4 @@
+# todo clean this
 import re
 import io
 from selenium import webdriver
@@ -5,27 +6,27 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support import expected_conditions as ec
 from selenium.common.exceptions import TimeoutException
 from selenium.common.exceptions import StaleElementReferenceException
 import time
 import random
 import math
-from os.path import dirname, realpath, join
+from os.path import dirname, join #  realpath,
 import os
 
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++initials
+# +++ +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++initials
 d = os.getcwd()
-dirname = os.path.dirname
-#++++++++++++++++++++
-#d_path =
+# dirname = os.path.dirname
+# ++++++++++++++++++++
+# d_path =
 main_path = dirname(d)
-#++++++++++++++++++++
-#website =
+# ++++++++++++++++++++
+# website =
 
 websiteend = '/s/?as=1&section=2&page=1'
 websitebeginning = 'https://saudi.souq.com/sa-en/'
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 
@@ -37,23 +38,15 @@ def readsearch( main_path = main_path):
     return line.rstrip('\n')
 
 
-#function for get urls adress to be scarped
-def introscrap( main_path = main_path):
+# function for get urls adress to be scarped
+def introscrap(main_path = main_path):
 
-    #====================4
 
     # make oprator for starting the program headless
     mode = 1
-
     options = Options()
     if mode > 0:
         options.add_argument('--headless')
-
-
-
-
-
-
 
 
 
@@ -61,17 +54,15 @@ def introscrap( main_path = main_path):
     driver = webdriver.Chrome(options = options, executable_path = join(main_path , 'webdriver','chromedriver'))
     #####
 
+
     # get search element ##### first input
     search1 = readsearch()
     ########
 
 
-    #get the website {improve}
-    driver.get(websitebeginning + search1 + websiteend )
+    # get the website {improve}
+    driver.get(websitebeginning + search1 + websiteend)
     #######
-
-
-
 
 
     # gets count of blocks in a page
@@ -80,13 +71,6 @@ def introscrap( main_path = main_path):
     print(pitems)
     ############
 
-    # initialize sellers, iteminfo, prics, links and ratings list. p.s rating is donted by having a rating or not having a rating
-    sellers = []
-    itemsinfo = []
-    prices = []
-    links = []
-    ratings = []
-    #################
 
     # gets the total number of items in the whole search
     j = driver.find_element_by_class_name('total').text
@@ -103,15 +87,13 @@ def introscrap( main_path = main_path):
     pages = math.ceil(Titems/pitems)
     #####
 
-
+    url1 = websitebeginning + search1 + websiteend[:-1]
+    urls = [ url1 + str(i) for i in range(1, pages)]# >>>pages
     # final list of url to be returned
     print('end of intero scrap')
     return urls, search1
 
 
-
-
-    urls = [websitebeginning + search1 + websiteend[:-1] + str(i) for i in range(1, pages)]# >>>pages
 
 # function that loops over blocks to get seller name, item name/details, item-profile-link and price.
 def scraper(url, main_path = main_path):
@@ -150,54 +132,39 @@ def scraper(url, main_path = main_path):
 
 
         try:
-            #print('scrapb run')
-            #print('\n\n')
-            print( url )
-            print('\n\n')
+
             time.sleep(1)
-            #print('\n\n')
-            #print( 'after timesleep' )
-            print('\n\n')
+
             Action = ActionChains(driver)
-            #print('\n\n')
+
             print( 'after ActionChains' )
             print('\n\n')
             Action.move_to_element(block).click().perform()
-            #print('\n\n')
-            #print( 'after move element before webdriverwait' )
+
             print('\n\n')
-            WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="quickViewReveal"]/div[2]/div/div[1]/div/div/div/div/div/div[1]/div/img')))
-            #print('\n after wait')
+            WebDriverWait(driver, 30).until(ec.element_to_be_clickable((By.XPATH, '//*[@id="quickViewReveal"]/div[2]/div/div[1]/div/div/div/div/div/div[1]/div/img')))
+
             seller = driver.find_element_by_class_name('sellerName').text
             Psellers.append(str(seller))
 
             i = driver.find_element_by_xpath('//*[@id="quickViewReveal"]/div[1]/h1/a').text
             item = i.replace(',','')
-            #print(f'>>>>>>>>>>>>>>>>>>')
-            #print(item)
-            #print(seller)
-            print(f'<<<<<<<<<<<<<<<<<<')
+
             Pitemsinfo.append(item)
 
 
 
 
-            #print(item.text)
-            #print(price.text)
-            #print(seller.text)
             Action1 = ActionChains(driver)
 
             Action1.move_to_element(driver.find_element_by_xpath('//*[@id="quickViewReveal"]/div[1]/button/span')).click().perform()
             time.sleep(1)
-
-            #print('scrapb end')
 
 
 
 
 
         except TimeoutException:
-            #print('expect 1')
             Pitemsinfo.append('n')
             Psellers.append('n')
             Action1 = ActionChains(driver)
@@ -206,15 +173,14 @@ def scraper(url, main_path = main_path):
             time.sleep(1)
 
         except StaleElementReferenceException:
-            #print('expect 2')
+
             Action1 = ActionChains(driver)
 
             Action1.move_to_element(driver.find_element_by_xpath('//*[@id="quickViewReveal"]/div[1]/button/span')).click().perform()
             time.sleep(1)
 
         count1 = count1 + 1
-        #print(f"count:")
-        #print(count1)
+
 
 
 
@@ -246,23 +212,19 @@ def scraper(url, main_path = main_path):
     print(Plinks)
     ###################
 
+
     # find all  items whice is rated, after all the page has loaded.
     ratings = driver.find_elements_by_xpath('//*[@id="content-body"]/div[7]/div/div/div/div/div[2]/a/ul/li[2]')
     regexp = re.compile(r'star')
     for r in ratings:
-        #print(f'<<<<<<<<<<<<<<<<<<')
-        #print (r.get_attribute('innerHTML'))
-        #print(f'<<<<<<<<<<<<<<<<<<')
-
         if regexp.search(r.get_attribute('innerHTML')):
             Prating.append('1')
         else:
             Prating.append('0')
     ################################
 
-    #get page number, make a list from that number. and get  the html for the whole page
+    # get page number, make a list from that number. and get  the html for the whole page
     page_num1 = url[-6:].split('=')
-
     for p in page_num1:
         if p.isdigit():
             page_num = p

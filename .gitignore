@@ -1,8 +1,9 @@
 csv/
 html/
-data/
 scrp/whiteb1.py
-old/
 sellersclist/
 text/
 oplist/csvfilesfordb.txt
+webdriver/
+dbconfig.yaml/
+old/
