@@ -1,3 +1,2 @@
 # todo fill in the requirements.txt file
 selenium
-bs4
