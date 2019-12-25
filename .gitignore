@@ -5,5 +5,5 @@ sellersclist/
 text/
 oplist/csvfilesfordb.txt
 webdriver/
-dbconfig.yaml/
+config/dbconfig.yaml/
 old/
