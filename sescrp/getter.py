@@ -25,12 +25,7 @@ d = getcwd()
 main_path = dirname(d)
 # ++++++++++++++++++++
 
-print(getcwd())
-pdates, search, product, sales, seller , session = au.tables(join(main_path , 'dbconfig.yaml'))
-sellertable = session.query(seller).filter_by(rated = None).first()# clean
-s = sellertable# cleab
-sellername = s.name
-seller_id = s.id
+
 
 
 def insert_into_seller(session, s, seller_date, item_count):
@@ -165,18 +160,29 @@ def Pcsv(souce, seller):
     return zip(res_date, res_price, res_info)
 
 
-try:
-    souce, seller_date, item_count = htmlgetter(sellername)
-    print(seller_date)
-except ec.NoSuchElementException:
-    print('zero sales')
-    s.rated = False
+
+
+def main(main_path=main_path, ):
+    print(getcwd())
+    pdates, search, product, sales, seller, session = au.tables(join(main_path, 'config\dbconfig.yaml'))
+    sellertable = session.query(seller).filter_by(rated=None).first()  # clean
+    s = sellertable  # cleab
+    sellername = s.name
+    seller_id = s.id
+
+    try:
+        souce, seller_date, item_count = htmlgetter(sellername)
+        print(seller_date)
+    except ec.NoSuchElementException:
+        print('zero sales')
+        s.rated = False
+        session.commit()
+        exit()
+
+    items_list = Pcsv(souce, sellername)
+    insert_into_seller(session, s, seller_date, item_count)
+    insert_items(session, seller_id, items_list, sales)
     session.commit()
-    exit()
 
 
 
-items_list = Pcsv(souce, sellername)
-insert_into_seller(session, s, seller_date, item_count)
-insert_items(session, seller_id, items_list, sales)
-session.commit()
