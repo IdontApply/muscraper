@@ -173,7 +173,7 @@ def Pcsv(souce):# todo rename function
 
 def main(main_path=main_path, ):
     print(getcwd())
-    pdates, search, product, sales, seller, session = au.tables(join(main_path, 'config\dbconfig.yaml'))
+    pdates, search, product, sales, seller, session = au.tables(join(main_path, 'config/dbconfig.yaml'))
     sellertable = session.query(seller).filter_by(rated=None).first()  # clean
 
     s = sellertable  # cleab
