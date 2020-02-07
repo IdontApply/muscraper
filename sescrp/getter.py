@@ -58,8 +58,13 @@ def show_more_click(driver, clicks, ele='showMoreResult'):
 
 def html_getter(sellername, main_path=main_path):
 
+
+
     # make option oprator that opens the web driver as a headless driver
     options = Options()
+    options.add_argument('--headless')
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
     #options.add_argument('--headless')
 
 
