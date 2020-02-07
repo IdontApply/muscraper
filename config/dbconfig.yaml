@@ -1,5 +1,0 @@
-postgres:
-    host: localhost
-    user: hmayt
-    passwd: 911750750
-    db: test
