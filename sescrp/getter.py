@@ -43,7 +43,20 @@ def insert_items(session, seller_id, items_list, sales_table):
     pass
 
 
-def htmlgetter(sellername, main_path=main_path):
+def show_more_click(driver, clicks, ele='showMoreResult'):
+    for x in range(0, clicks):
+        t0 = time.time()
+        time.sleep(1.5)
+        numele = (x+1)*25
+        WebDriverWait(driver, 60*10).until(ec.element_to_be_clickable((By.XPATH, f'// *[ @ id = "seller-ratings"] / div[{numele}]')))
+        show_more = driver.find_element_by_id(ele)
+        ActionChains(driver).move_to_element(show_more).click().perform()
+        print(f"\n\n\nclick number {x}\n\n\n")
+        t1 = time.time()
+        print(t1 - t0)
+
+
+def html_getter(sellername, main_path=main_path):
 
     # make option oprator that opens the web driver as a headless driver
     options = Options()
@@ -84,14 +97,9 @@ def htmlgetter(sellername, main_path=main_path):
 
 
     #loop-click the show-more button to show the whole page
-    Action = ActionChains(driver)
-    for x in range(0, clicks):
+    show_more_click(driver, clicks, ele='showMoreResult')
+    #Action = ActionChains(driver)
 
-        time.sleep(1.5)
-        WebDriverWait(driver, 30).until(ec.element_to_be_clickable((By.ID, 'showMoreResult')))
-        show_more = driver.find_element_by_id('showMoreResult')
-        Action.move_to_element(show_more).click().perform()
-        print(f"\n\n\nclick number {x}\n\n\n")
     ###########
 
 
@@ -114,23 +122,21 @@ def htmlgetter(sellername, main_path=main_path):
     return soup , member_sense, numb
 
 
-def Pcsv(souce, seller):
+def Pcsv(souce):# todo rename function
 
+    soup = BeautifulSoup(souce, 'html.parser') # soup
 
-    # find date-of-purches, price and item-info in the html
-    soup = BeautifulSoup(souce, 'html.parser')
+    # cleaning tools for finding the price
+    f = re.compile("[A-Z][a-z ]{2}\s[a-z ]{2}\s[a-z ]{3}\s[a-z ]{3}\s\d+[.]")
+    p = re.compile("\d+")
+
+    # find date-of-purches, price and item-info in the html 
     soup_date = soup.find_all("small", class_="gray-color")
     soup_info = soup.find_all("a", class_="display-inline")
     soup_price1 = soup.find_all("ul")
     res_date = []
     res_info = []
     res_price = []
-
-
-
-    # cleaning tools for finding the price
-    f = re.compile("[A-Z][a-z ]{2}\s[a-z ]{2}\s[a-z ]{3}\s[a-z ]{3}\s\d+[.]")
-    p = re.compile("\d+")
 
 
 
@@ -160,18 +166,24 @@ def Pcsv(souce, seller):
     return zip(res_date, res_price, res_info)
 
 
-
-
 def main(main_path=main_path, ):
     print(getcwd())
     pdates, search, product, sales, seller, session = au.tables(join(main_path, 'config\dbconfig.yaml'))
     sellertable = session.query(seller).filter_by(rated=None).first()  # clean
+
     s = sellertable  # cleab
+
+    if s.name is 'souq-shop':
+        s.rated = False
+        session.commit()
+        exit()
+
     sellername = s.name
     seller_id = s.id
+    seller_html = s.html
 
     try:
-        souce, seller_date, item_count = htmlgetter(sellername)
+        souce, seller_date, item_count = html_getter(sellername)
         print(seller_date)
     except ec.NoSuchElementException:
         print('zero sales')
@@ -183,6 +195,8 @@ def main(main_path=main_path, ):
     insert_into_seller(session, s, seller_date, item_count)
     insert_items(session, seller_id, items_list, sales)
     session.commit()
+
+
 
 
 
