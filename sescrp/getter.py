@@ -28,10 +28,11 @@ main_path = dirname(d)
 
 
 
-def insert_into_seller(session, s, seller_date, item_count):
+def insert_into_seller(session, s, seller_date, item_count, souce):
     s.rated = True
     s.eneterydate = seller_date
     s.totalsales = int(item_count)
+    s.html = souce
     session.commit()
 
 
@@ -118,10 +119,6 @@ def html_getter(sellername, main_path=main_path):
     ####
 
 
-    #save html into a file
-    with io.open(join(main_path ,'html' , sellername + '.html'), 'w' , encoding='utf8') as f:
-        f.write(soup)
-    ######
 
 
     return soup , member_sense, numb
@@ -178,14 +175,14 @@ def main(main_path=main_path, ):
 
     s = sellertable  # cleab
 
-    if s.name is 'souq-shop':
+    if s.name == 'souq-shop':
         s.rated = False
         session.commit()
         exit()
 
     sellername = s.name
     seller_id = s.id
-    seller_html = s.html
+    #seller_html = s.html
 
     try:
         souce, seller_date, item_count = html_getter(sellername)
@@ -197,7 +194,7 @@ def main(main_path=main_path, ):
         exit()
 
     items_list = Pcsv(souce, sellername)
-    insert_into_seller(session, s, seller_date, item_count)
+    insert_into_seller(session, s, seller_date, item_count,souce)
     insert_items(session, seller_id, items_list, sales)
     session.commit()
 
