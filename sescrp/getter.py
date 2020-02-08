@@ -70,7 +70,7 @@ def html_getter(sellername, main_path=main_path):
 
     # open webdriver and website. use oprator option oprator.
     #main>
-    driver = webdriver.Chrome(options = options, executable_path = join(main_path , 'webdriver','chromedriver'))
+    driver = webdriver.Chrome(options = options)
     url = f'https://saudi.souq.com/sa-en/{sellername}/p/profile.html'
     driver.get(url)
     soucenum = BeautifulSoup(driver.page_source, 'html.parser')
