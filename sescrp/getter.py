@@ -193,7 +193,7 @@ def main(main_path=main_path, ):
         session.commit()
         exit()
 
-    items_list = Pcsv(souce, sellername)
+    items_list = Pcsv(souce)
     insert_into_seller(session, s, seller_date, item_count,souce)
     insert_items(session, seller_id, items_list, sales)
     session.commit()
