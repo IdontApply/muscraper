@@ -132,7 +132,7 @@ def Pcsv(souce):# todo rename function
     f = re.compile("[A-Z][a-z ]{2}\s[a-z ]{2}\s[a-z ]{3}\s[a-z ]{3}\s\d+[.]")
     p = re.compile("\d+")
 
-    # find date-of-purches, price and item-info in the html 
+    # find date-of-purches, price and item-info in the html
     soup_date = soup.find_all("small", class_="gray-color")
     soup_info = soup.find_all("a", class_="display-inline")
     soup_price1 = soup.find_all("ul")
@@ -170,7 +170,7 @@ def Pcsv(souce):# todo rename function
 
 def main(main_path=main_path, ):
     print(getcwd())
-    pdates, search, product, sales, seller, session = au.tables(join(main_path, 'config/dbconfig.yaml'))
+    pdates, search, product, sales, seller, session = au.tables()
     sellertable = session.query(seller).filter_by(rated=None).first()  # clean
 
     s = sellertable  # cleab
@@ -197,8 +197,3 @@ def main(main_path=main_path, ):
     insert_into_seller(session, s, seller_date, item_count,souce)
     insert_items(session, seller_id, items_list, sales)
     session.commit()
-
-
-
-
-
